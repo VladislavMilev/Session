@@ -53,8 +53,12 @@ class Session:
         :return: new instance
         """
         for i in self.row2dict(instance).keys():
-            if self.row2dict(instance).get(i) != data.get(i):
+            if i == 'id' or data.get(i) == None:
+                continue
+            elif self.row2dict(instance).get(i) != data.get(i):
                 setattr(instance, i, data.get(i))
+            else:
+                return {'error': f'Can not update {instance.__table__} instance'}
 
         return instance
 
