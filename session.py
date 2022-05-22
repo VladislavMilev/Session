@@ -42,6 +42,7 @@ class Session:
             for column in lst[item].__table__.columns:
                 d[column.name] = str(getattr(lst[item], column.name))
             l.append(d)
+            d = {}
         return l
 
     def check_fields_for_update(self, instance, data):
@@ -110,7 +111,7 @@ class SessionQueryGet(Session):
             instance = self.function(self, data)
             return self.row2dict(instance)
         except Exception as error:
-            return {'error': error}
+            return {'error': f'{error}'}
         finally:
             self.session.close()
 
