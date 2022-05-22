@@ -64,7 +64,7 @@ class Session:
         return instance
 
 
-class SessionQueryCreate(Session):
+class SessionCreate(Session):
     """
     Class decorator
     Needed to decorate all transaction function which post some data like: create_user()
@@ -86,12 +86,12 @@ class SessionQueryCreate(Session):
             self.session.commit()
             return data
         except Exception as error:
-            return {'error': error}
+            return {'error': f'{error}'}
         finally:
             self.session.close()
 
 
-class SessionQueryGet(Session):
+class SessionGet(Session):
     """
     Class decorator
     Needed to decorate all transaction function which get some data like: create_user()
@@ -116,7 +116,7 @@ class SessionQueryGet(Session):
             self.session.close()
 
 
-class SessionQueryGetAll(Session):
+class SessionGetAll(Session):
     """
     Class decorator
     Needed to decorate all transaction function which get some data like: create_user()
@@ -136,12 +136,12 @@ class SessionQueryGetAll(Session):
             instance = self.function(self)
             return self.list2dict(instance)
         except Exception as error:
-            return {'error': error}
+            return {'error': f'{error}'}
         finally:
             self.session.close()
 
 
-class SessionQueryUpdate(Session):
+class SessionUpdate(Session):
 
     def __init__(self, function):
         super().__init__()
@@ -154,6 +154,24 @@ class SessionQueryUpdate(Session):
             self.session.commit()
             return self.row2dict(instance)
         except Exception as error:
-            return {'error': error}
+            return {'error': f'{error}'}
+        finally:
+            self.session.close()
+
+
+class SessionDelete(Session):
+
+    def __init__(self, function):
+        super().__init__()
+        self.function = function
+
+    def __call__(self):
+        try:
+            instance = self.function(self)
+            self.session.delete(instance)
+            self.session.commit()
+            return self.row2dict(instance)
+        except Exception as error:
+            return {'error': f'{error}'}
         finally:
             self.session.close()
