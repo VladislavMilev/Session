@@ -165,9 +165,9 @@ class SessionDelete(Session):
         super().__init__()
         self.function = function
 
-    def __call__(self):
+    def __call__(self, data: dict):
         try:
-            instance = self.function(self)
+            instance = self.function(self, data)
             self.session.delete(instance)
             self.session.commit()
             return self.row2dict(instance)
