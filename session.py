@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from DAO.engine import engine
+from DAO.ENGINE import engine
 
 
 class Session:
@@ -54,14 +54,15 @@ class Session:
         :return: new instance
         """
         for i in self.row2dict(instance).keys():
-            if i == 'id' or data.get(i) == None:
-                continue
-            elif self.row2dict(instance).get(i) != data.get(i):
-                setattr(instance, i, data.get(i))
-            else:
-                return {'error': f'Can not update {instance.__table__} instance'}
-
+            try:
+                if i == 'id' or data.get(i) == None:
+                    continue
+                elif self.row2dict(instance).get(i) != data.get(i):
+                    setattr(instance, i, data.get(i))
+            except Exception as error:
+                return {'error': f'Can not update {instance.__table__} instance: {error}'}
         return instance
+
 
 
 class SessionCreate(Session):
@@ -106,9 +107,9 @@ class SessionGet(Session):
         super().__init__()
         self.function = function
 
-    def __call__(self, data: dict = None):
+    def __call__(self, id: int = None, email: str = None):
         try:
-            instance = self.function(self, data)
+            instance = self.function(self, id, email)
             return self.row2dict(instance)
         except Exception as error:
             return {'error': f'{error}'}
@@ -147,7 +148,7 @@ class SessionUpdate(Session):
         super().__init__()
         self.function = function
 
-    def __call__(self, data: dict = None):
+    def __call__(self, data: dict):
         try:
             instance = self.function(self, data)
             self.check_fields_for_update(instance, data)
@@ -165,9 +166,9 @@ class SessionDelete(Session):
         super().__init__()
         self.function = function
 
-    def __call__(self, data: dict):
+    def __call__(self, id: int):
         try:
-            instance = self.function(self, data)
+            instance = self.function(self, id)
             self.session.delete(instance)
             self.session.commit()
             return self.row2dict(instance)
